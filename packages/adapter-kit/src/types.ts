@@ -520,6 +520,11 @@ export interface AgentRunRequest {
   /** Server verified legacy attachment bytes remain available to file tools. */
   currentTurnImageFileFallback?: boolean;
   tools: ConnectorTool[];
+  /**
+   * Every tool this run can still execute when `tools` is only the schemas sent
+   * to the model. Set for a local or small context, where builtin tools load one pack at a time.
+   */
+  toolCatalog?: ConnectorTool[];
   model: AgentRunModel;
   /** Ordered, user-selected models eligible after provider unavailability. */
   fallbackModels?: Array<Pick<AgentRunModel, "provider" | "id" | "connectionId">>;

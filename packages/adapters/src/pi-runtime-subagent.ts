@@ -26,6 +26,7 @@ import { toAgentTools, toolCallBudgetExceededMessage } from "./pi-runtime-tools.
 import { observedPiStream } from "./pi-usage.js";
 import { createRuntimeContextPolicy } from "./runtime-context.js";
 import { deliverFinishedShells } from "./shell-command-stream.js";
+import { ENABLE_TOOL_PACK_TOOL } from "./tool-packs.js";
 
 export const MAX_PARALLEL_SUBAGENTS = 4;
 
@@ -103,7 +104,9 @@ export async function executeSubagent(
   }
   const subagentModel = modelForCompletion(selectedModel.model, requestModel.maxTokens);
 
-  const childDefs = host.request.tools.filter((tool) => !DELEGATION_TOOL_NAMES.has(tool.name));
+  const childDefs = host.request.tools.filter(
+    (tool) => !DELEGATION_TOOL_NAMES.has(tool.name) && tool.name !== ENABLE_TOOL_PACK_TOOL,
+  );
   const nestedHost: ToolHost = {
     ...host,
     activeModel: {
