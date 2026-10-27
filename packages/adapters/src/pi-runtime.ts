@@ -69,6 +69,7 @@ import {
 import type { PiSessionHandle, PiSessionRecorder } from "./pi-session.js";
 import { PiJsonlSessionRecorder } from "./pi-session.js";
 import { withPiTelemetry } from "./pi-telemetry.js";
+import { recoverTextJsonToolCallStream } from "./pi-text-json-tool-recovery.js";
 import { observedPiStream } from "./pi-usage.js";
 import type { RuntimeContextDecision } from "./runtime-context.js";
 import { createRuntimeContextPolicy } from "./runtime-context.js";
@@ -431,10 +432,12 @@ export class PiAgentRuntime implements AgentRuntime {
           sessionId: conversationSessionId(request.threadId, request.botId),
           steeringMode: "all",
           streamFn: (_m, ctx, options) =>
-            fallbackAwareModelStream(
-              fallbackState,
-              ctx,
-              withAutomatedLabels({ ...options, fetch: this.modelFetch ?? options?.fetch }),
+            recoverTextJsonToolCallStream(
+              fallbackAwareModelStream(
+                fallbackState,
+                ctx,
+                withAutomatedLabels({ ...options, fetch: this.modelFetch ?? options?.fetch }),
+              ),
             ),
           getApiKey: hasBackups
             ? async () => activeStreamTarget.credentials?.accessToken ?? activeStreamTarget.apiKey

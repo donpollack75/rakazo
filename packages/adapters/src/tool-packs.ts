@@ -143,7 +143,7 @@ const CONNECTORS_PACK: ToolPack = {
  * after enable_tool_pack; this only keeps their instructions out of the first prompt.
  */
 export const PACKED_TOOL_GUIDANCE =
-  "Answer in chat when you can. Call enable_tool_pack with one pack id to load that pack for the rest of this chat; it replaces the pack already loaded. Pass none to unload. If a purchase, send, or submission differs from what the user confirmed, show the difference and confirm again first.";
+  "Answer in chat when you can. Do not pair ask_user with enable_tool_pack when a plain answer works. Call enable_tool_pack with one pack id (web for search and fetch) to load that pack for the rest of this chat; it replaces the pack already loaded. Pass none to unload. If a purchase, send, or submission differs from what the user confirmed, show the difference and confirm again first.";
 
 /** Replaces the long progress essay on a packed turn. message_user stays available. */
 export const PACKED_REPLY_GUIDANCE =
@@ -306,16 +306,19 @@ function connectorTools(catalog: readonly ConnectorTool[]): ConnectorTool[] {
 }
 
 function enableToolPackTool(packs: readonly ToolPack[]): ConnectorTool {
+  const ids = packs.map((pack) => pack.id).join(", ");
   return {
     name: ENABLE_TOOL_PACK_TOOL,
     description:
-      "Load one pack for the rest of this chat, replacing any pack already loaded. Chat tools stay. Pass list to see what each pack id does, or none to unload.",
+      "Load one pack for the rest of this chat, replacing any pack already loaded. Chat tools stay. Pass list to see what each pack id does, or none to unload. Search and fetch are web.",
     inputSchema: {
       type: "object",
       properties: {
         pack: {
           type: "string",
-          enum: [...packs.map((pack) => pack.id), "list", "none"],
+          // An unknown id such as "search" must reach the handler, which names the
+          // real packs. An enum fails schema validation before that reply is built.
+          description: `One pack id (${ids}), list, or none.`,
         },
       },
       required: ["pack"],

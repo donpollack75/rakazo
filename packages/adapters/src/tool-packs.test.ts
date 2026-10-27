@@ -136,11 +136,16 @@ describe("builtin tool packs", () => {
     expect(names).not.toContain("computer_act");
     const enable = turn.tools.find((tool) => tool.name === ENABLE_TOOL_PACK_TOOL);
     expect(enable?.description).toContain("none to unload");
-    const packEnum = JSON.stringify(enable?.inputSchema);
-    expect(packEnum).toContain('"files"');
-    expect(packEnum).toContain('"schedule_create"');
-    expect(packEnum).toContain('"list"');
-    expect(packEnum).toContain('"none"');
+    expect(enable?.description).toContain("web");
+    expect(PACKED_TOOL_GUIDANCE).toContain("web for search and fetch");
+    expect(PACKED_TOOL_GUIDANCE).toContain("ask_user");
+    expect(PACKED_TOOL_GUIDANCE).toContain("enable_tool_pack");
+    const packField = JSON.stringify(enable?.inputSchema);
+    expect(packField).toContain("files");
+    expect(packField).toContain("schedule_create");
+    expect(packField).toContain("list");
+    expect(packField).toContain("none");
+    expect(packField).not.toContain('"enum"');
   });
 
   it("keeps every schema for a hosted model with room, and packs a small window", () => {
