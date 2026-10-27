@@ -23,6 +23,7 @@ import {
 import { conversationSessionId, reliableModelStream } from "./pi-runtime-stream.js";
 import type { ToolHost } from "./pi-runtime-tools.js";
 import { toAgentTools, toolCallBudgetExceededMessage } from "./pi-runtime-tools.js";
+import { recoverTextJsonToolCallStream } from "./pi-text-json-tool-recovery.js";
 import { observedPiStream } from "./pi-usage.js";
 import { createRuntimeContextPolicy } from "./runtime-context.js";
 import { deliverFinishedShells } from "./shell-command-stream.js";
@@ -226,10 +227,12 @@ export async function executeSubagent(
     },
     sessionId: conversationSessionId(host.request.threadId, host.request.botId, agentId),
     streamFn: (_m, ctx, options) =>
-      fallbackAwareModelStream(
-        retryState,
-        ctx,
-        withAutomatedLabels({ ...options, fetch: host.modelFetch ?? options?.fetch }),
+      recoverTextJsonToolCallStream(
+        fallbackAwareModelStream(
+          retryState,
+          ctx,
+          withAutomatedLabels({ ...options, fetch: host.modelFetch ?? options?.fetch }),
+        ),
       ),
     getApiKey: async () =>
       hasBackups
