@@ -21,8 +21,8 @@ import type { createThreadHeaderStyles } from "../thread-header-styles";
 type BotAction = { text: string; destructive?: boolean; onPress: () => void };
 
 /**
- * The chat's navigation header: its title, the bot's actions menu (or group settings), the
- * split-view inbox toggle, and Restore for an archived bot.
+ * The chat's navigation header: its title, Clear conversation beside the bot's actions menu
+ * (or group settings), the split-view inbox toggle, and Restore for an archived bot.
  */
 export function useThreadHeader({
   botId,
@@ -101,10 +101,12 @@ export function useThreadHeader({
         hasBot: Boolean(botId),
         t,
         color: tokens.foreground,
+        destructiveColor: tokens.destructive,
         rowStyle: styles.headerActions,
         onGroupSettings: () =>
           router.push({ pathname: "/group-settings", params: { groupId: groupId ?? "" } }),
         onBotActions: showBotActions,
+        onClearConversation: confirmClearConversation,
         menuActions: botActions,
         computerLabel: t("Open computer"),
       }),
@@ -128,6 +130,7 @@ export function useThreadHeader({
     tokens,
     colorScheme,
     styles,
+    onCleared,
   ]);
 
   async function restoreConversation() {
@@ -158,6 +161,20 @@ export function useThreadHeader({
       );
   }
 
+  function confirmClearConversation() {
+    if (!botId) return;
+    Alert.alert(
+      t("Clear conversation?"),
+      t(
+        "This removes every message and stops current work. The bot, computer, memory, and routines are kept.",
+      ),
+      [
+        { text: t("Cancel"), style: "cancel" },
+        { text: t("Clear"), style: "destructive", onPress: clearConversation },
+      ],
+    );
+  }
+
   function openBotComputer() {
     router.push({
       pathname: "/computer",
@@ -186,17 +203,7 @@ export function useThreadHeader({
     {
       text: t("Clear conversation"),
       destructive: true,
-      onPress: () =>
-        Alert.alert(
-          t("Clear conversation?"),
-          t(
-            "This removes every message and stops current work. The bot, computer, memory, and routines are kept.",
-          ),
-          [
-            { text: t("Cancel"), style: "cancel" },
-            { text: t("Clear"), style: "destructive", onPress: clearConversation },
-          ],
-        ),
+      onPress: confirmClearConversation,
     },
     {
       text: t("Archive"),

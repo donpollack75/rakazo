@@ -1257,6 +1257,7 @@ msgstr "清空与 {0} 的对话？"
 
 #: src/pages/BotContextMenu.tsx
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/chat-header.tsx
 msgid "Clear conversation"
 msgstr "清空对话"
 

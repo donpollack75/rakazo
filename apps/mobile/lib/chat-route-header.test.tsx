@@ -11,7 +11,9 @@ vi.mock("react-native", () => ({
   View: () => null,
 }));
 vi.mock("expo-router", () => ({ router: { push } }));
-vi.mock("./appearance", () => ({ mobileTokens: () => ({ foreground: "#000" }) }));
+vi.mock("./appearance", () => ({
+  mobileTokens: () => ({ foreground: "#000", destructive: "#c00" }),
+}));
 vi.mock("./native-controls", () => ({ iosAtLeast: () => true }));
 vi.mock("./split-view", () => ({ setInboxHidden }));
 vi.mock("./thread-edges", () => ({ threadEdgeOptions: () => ({ headerTransparent: true }) }));
@@ -44,8 +46,14 @@ it("declares a bot chat's title and its … menu when the screen is created", ()
   expect(options.headerTitle).toBeTypeOf("function");
   expect(options.headerTitleAlign).toBe("center");
   expect(options.headerTransparent).toBe(true);
-  const [item] = rightItems(options);
-  expect(item).toMatchObject({ type: "menu", icon: { type: "sfSymbol", name: "ellipsis" } });
+  const [clear, menu] = rightItems(options);
+  expect(clear).toMatchObject({
+    type: "button",
+    label: "Clear conversation",
+    tintColor: "#c00",
+  });
+  expect(clear).not.toHaveProperty("icon");
+  expect(menu).toMatchObject({ type: "menu", icon: { type: "sfSymbol", name: "ellipsis" } });
   expect(options.headerRight).toBeTypeOf("function");
   expect(options.headerBackVisible).toBe(true);
 });

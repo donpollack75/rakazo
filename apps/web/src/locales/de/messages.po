@@ -1257,6 +1257,7 @@ msgstr "Unterhaltung mit {0} leeren?"
 
 #: src/pages/BotContextMenu.tsx
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/chat-header.tsx
 msgid "Clear conversation"
 msgstr "Unterhaltung leeren"
 

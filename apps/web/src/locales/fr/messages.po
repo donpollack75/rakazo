@@ -1257,6 +1257,7 @@ msgstr "Effacer la conversation de {0} ?"
 
 #: src/pages/BotContextMenu.tsx
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/chat-header.tsx
 msgid "Clear conversation"
 msgstr "Effacer la conversation"
 

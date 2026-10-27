@@ -16,6 +16,9 @@ test("the chat header floats over the transcript", async ({ page }, testInfo) =>
     await expect(transcript.getByText(text, { exact: true })).toBeVisible();
   }
 
+  await expect(page.getByTestId("clear-conversation")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Agent computer", exact: true })).toBeVisible();
+
   const header = await page.getByTestId("bot-settings-trigger").boundingBox();
   const scroller = await transcript.boundingBox();
   if (!header || !scroller) throw new Error("missing chat layout");
@@ -46,4 +49,12 @@ test("the chat header floats over the transcript", async ({ page }, testInfo) =>
     .boundingBox();
   if (!first) throw new Error("missing first message");
   expect(first.y).toBeGreaterThan(header.y + header.height);
+
+  await page.getByTestId("clear-conversation").click();
+  const confirmCopy = page.getByText(
+    /This permanently removes every message and stops current work/,
+  );
+  await expect(confirmCopy).toBeVisible();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(confirmCopy).toHaveCount(0);
 });

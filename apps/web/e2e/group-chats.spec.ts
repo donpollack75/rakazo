@@ -50,6 +50,7 @@ test("create group from + and see two bots in one transcript", async ({ page }, 
   await page.reload();
   await expect(page).toHaveURL(groupUrl);
   await expect(page.getByRole("combobox", { name: "Message Draft team" })).toBeVisible();
+  await expect(page.getByTestId("clear-conversation")).toBeVisible();
 
   const groups = await rpc<
     Array<{

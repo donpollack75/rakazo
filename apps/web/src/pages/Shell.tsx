@@ -811,6 +811,13 @@ function SpaceShell() {
             computerPanelOpen={panel === "computer"}
             onOpenNavigation={() => setMobileSidebarOpen(true)}
             onOpenChatSettings={() => setPanel(inGroup ? "group-settings" : "settings")}
+            onClearConversation={() => {
+              if (inGroup) {
+                if (activeGroup) dialogs.setClearTarget({ kind: "group", chat: activeGroup });
+                return;
+              }
+              if (active) dialogs.setClearTarget({ kind: "bot", chat: active });
+            }}
             onCall={(bot) => {
               if (call?.botId === bot.id) {
                 setCallMinimized(false);

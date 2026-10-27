@@ -1,10 +1,10 @@
-import { useLingui } from "@lingui/react/macro";
+import { Trans, useLingui } from "@lingui/react/macro";
 import type { Bot, Group, ThreadSnapshot } from "@rakazo/contracts";
 import { BotAvatar, Button, GroupAvatar } from "@rakazo/ui-web";
-import { Menu, Monitor, Phone } from "lucide-react";
+import { Eraser, Menu, Monitor, Phone } from "lucide-react";
 import { IconTooltip } from "../../components/IconTooltip";
 
-/** The floating header over the transcript: navigation, the chat's name, call and computer. */
+/** The floating header over the transcript: navigation, the chat's name, clear, call, and computer. */
 export function ChatHeader({
   inGroup,
   active,
@@ -15,6 +15,7 @@ export function ChatHeader({
   computerPanelOpen,
   onOpenNavigation,
   onOpenChatSettings,
+  onClearConversation,
   onCall,
   onToggleComputer,
 }: {
@@ -27,10 +28,13 @@ export function ChatHeader({
   computerPanelOpen: boolean;
   onOpenNavigation: () => void;
   onOpenChatSettings: () => void;
+  /** Opens the existing clear confirmation for the chat in the header. */
+  onClearConversation: () => void;
   onCall: (bot: Bot) => void;
   onToggleComputer: (bot: Bot) => void;
 }) {
   const { t } = useLingui();
+  const canClear = inGroup ? Boolean(activeGroup) : Boolean(active);
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-10 grid grid-cols-[1fr_minmax(0,auto)_1fr] items-center gap-2 px-3 py-[13px] md:px-[22px] [&_button]:pointer-events-auto">
       <div className="flex items-center">
@@ -64,6 +68,18 @@ export function ChatHeader({
         </span>
       </Button>
       <div className="flex items-center justify-self-end gap-2">
+        {canClear ? (
+          <Button
+            variant="floating"
+            size="sm"
+            data-testid="clear-conversation"
+            onClick={onClearConversation}
+            className="app-no-drag px-3 text-destructive"
+          >
+            <Eraser strokeWidth={1.7} />
+            <Trans>Clear conversation</Trans>
+          </Button>
+        ) : null}
         {phoneCallsEnabled && !inGroup && active ? (
           <IconTooltip label={inCall ? t`Open call` : t`Call`}>
             <Button
