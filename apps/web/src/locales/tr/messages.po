@@ -1257,6 +1257,7 @@ msgstr "{0} sohbeti temizlensin mi?"
 
 #: src/pages/BotContextMenu.tsx
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/chat-header.tsx
 msgid "Clear conversation"
 msgstr "Sohbeti temizle"
 

@@ -1,5 +1,5 @@
 import type { NativeStackNavigationOptions } from "expo-router";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { iosAtLeast } from "../lib/native-controls";
 import { NativeSymbol } from "./native-symbol";
 
@@ -7,10 +7,10 @@ import { NativeSymbol } from "./native-symbol";
 export type ThreadHeaderAction = { text: string; destructive?: boolean; onPress: () => void };
 
 /**
- * A chat header's right side: the group's settings button in a group, the bot's "…" actions
- * otherwise. The chat route declares it when the screen is created, so the title is centred
- * against it from the first frame; the open chat then fills in the actions. Both use this one
- * builder so the item never changes shape or size.
+ * A chat header's right side: Clear conversation beside the bot's "…" actions, or the group's
+ * settings button. The chat route declares it when the screen is created, so the title is
+ * centred against it from the first frame; the open chat then fills in the actions. Both use
+ * this one builder so the item never changes shape or size.
  */
 export function threadHeaderRight({
   inGroup,
@@ -18,9 +18,11 @@ export function threadHeaderRight({
   hasBot,
   t,
   color,
+  destructiveColor,
   rowStyle,
   onGroupSettings,
   onBotActions,
+  onClearConversation,
   menuActions,
   computerLabel,
 }: {
@@ -29,17 +31,34 @@ export function threadHeaderRight({
   hasBot: boolean;
   t: (text: string) => string;
   color: string;
+  destructiveColor: string;
   rowStyle?: object;
   onGroupSettings: () => void;
   onBotActions: () => void;
+  /** Confirms, then clears. The "…" menu keeps its own Clear conversation entry. */
+  onClearConversation: () => void;
   menuActions: readonly ThreadHeaderAction[];
   /** The menu action that gets the computer icon. */
   computerLabel?: string;
 }): NativeStackNavigationOptions {
+  const showClear = !inGroup && !readOnly;
+  const clearLabel = t("Clear conversation");
   return {
     ...(Platform.OS === "ios" && !readOnly && (!inGroup || iosAtLeast(26))
       ? {
           unstable_headerRightItems: () => [
+            ...(showClear
+              ? [
+                  {
+                    type: "button" as const,
+                    label: clearLabel,
+                    accessibilityLabel: clearLabel,
+                    tintColor: destructiveColor,
+                    disabled: !hasBot,
+                    onPress: onClearConversation,
+                  },
+                ]
+              : []),
             inGroup
               ? {
                   type: "button" as const,
@@ -81,6 +100,30 @@ export function threadHeaderRight({
         </Pressable>
       ) : (
         <View style={rowStyle}>
+          {showClear ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={clearLabel}
+              accessibilityState={hasBot ? undefined : { disabled: true }}
+              disabled={!hasBot}
+              hitSlop={8}
+              onPress={onClearConversation}
+              style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+            >
+              <NativeSymbol
+                ios="eraser"
+                android="backspace-outline"
+                size={18}
+                color={destructiveColor}
+              />
+              <Text
+                numberOfLines={1}
+                style={{ color: destructiveColor, fontSize: 15, fontWeight: "600" }}
+              >
+                {clearLabel}
+              </Text>
+            </Pressable>
+          ) : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t("Bot actions")}

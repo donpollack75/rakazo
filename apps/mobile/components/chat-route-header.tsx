@@ -33,7 +33,7 @@ export function chatRouteHeader(
   const params = (route.params ?? {}) as ChatTitleParams;
   const { groupId, botId } = params;
   const readOnly = params.readOnly === "1";
-  const color = mobileTokens().foreground;
+  const tokens = mobileTokens();
   return {
     headerTitleAlign: "center",
     ...threadEdgeOptions(),
@@ -43,14 +43,16 @@ export function chatRouteHeader(
       readOnly,
       hasBot: Boolean(botId),
       t,
-      color,
+      color: tokens.foreground,
+      destructiveColor: tokens.destructive,
       rowStyle: createThreadHeaderStyles().headerActions,
       onGroupSettings: () =>
         router.push({ pathname: "/group-settings", params: { groupId: groupId ?? "" } }),
       onBotActions: () => undefined,
+      onClearConversation: () => undefined,
       menuActions: [],
     }),
-    ...threadHeaderLeft({ split, inboxHidden, foldActive, t, color }),
+    ...threadHeaderLeft({ split, inboxHidden, foldActive, t, color: tokens.foreground }),
     // An archived chat offers Restore; the open chat gives it its action.
     ...(readOnly ? trailingHeaderOptions(t("Restore"), () => undefined) : {}),
   };

@@ -1257,6 +1257,7 @@ msgstr "{0}와의 대화 내용을 비울까요?"
 
 #: src/pages/BotContextMenu.tsx
 #: src/pages/shell/bot-panel.tsx
+#: src/pages/shell/chat-header.tsx
 msgid "Clear conversation"
 msgstr "대화 내용 비우기"
 
