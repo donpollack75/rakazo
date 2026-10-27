@@ -73,6 +73,7 @@ import { observedPiStream } from "./pi-usage.js";
 import type { RuntimeContextDecision } from "./runtime-context.js";
 import { createRuntimeContextPolicy } from "./runtime-context.js";
 import { deliverFinishedShells } from "./shell-command-stream.js";
+import { resolveEnabledToolPack, turnContextWithToolPack } from "./tool-packs.js";
 import {
   restoreTurnCheckpoint,
   serializeTurnCheckpoint,
@@ -252,6 +253,7 @@ export class PiAgentRuntime implements AgentRuntime {
         };
         resumeHost = host;
         const tools = toAgentTools(toolDefs, host);
+        let pendingPackTools: ReturnType<typeof toAgentTools> | undefined;
         const seenSteeringIds: string[] = [];
         const initialSteering = request.claimSteering ? await request.claimSteering([]) : [];
         let hasCurrentImages = Boolean(
@@ -451,23 +453,30 @@ export class PiAgentRuntime implements AgentRuntime {
               turnSignal,
             );
           },
-          prepareNextTurnWithContext: async () => {
-            if (!request.claimSteering) return undefined;
-            const steering = await request.claimSteering([...seenSteeringIds]);
-            if (steering.length === 0) return undefined;
-            seenSteeringIds.push(...steering.map((item) => item.id));
-            for (const item of steering) representedHistoryIds.add(item.messageId);
-            if (steering.some((item) => item.images?.length && !item.imageFileFallback))
-              hasCurrentImages = true;
-            for (const item of steering) {
-              const images = toPiImages(item.images);
-              agent.steer({
-                role: "user",
-                content: images.length ? [{ type: "text", text: item.text }, ...images] : item.text,
-                timestamp: Date.now(),
-              });
+          prepareNextTurnWithContext: async (turn) => {
+            const packTools = pendingPackTools;
+            pendingPackTools = undefined;
+            if (request.claimSteering) {
+              const steering = await request.claimSteering([...seenSteeringIds]);
+              if (steering.length > 0) {
+                seenSteeringIds.push(...steering.map((item) => item.id));
+                for (const item of steering) representedHistoryIds.add(item.messageId);
+                if (steering.some((item) => item.images?.length && !item.imageFileFallback))
+                  hasCurrentImages = true;
+                for (const item of steering) {
+                  const images = toPiImages(item.images);
+                  agent.steer({
+                    role: "user",
+                    content: images.length
+                      ? [{ type: "text", text: item.text }, ...images]
+                      : item.text,
+                    timestamp: Date.now(),
+                  });
+                }
+              }
             }
-            return undefined;
+            if (!packTools) return undefined;
+            return { context: turnContextWithToolPack(turn.context, packTools) };
           },
           initialState: {
             systemPrompt,
@@ -477,6 +486,21 @@ export class PiAgentRuntime implements AgentRuntime {
             messages: history,
           },
         });
+        const toolCatalog = request.toolCatalog;
+        host.applyToolPack = (requested) => {
+          if (!toolCatalog) return { error: "Tool packs are not available on this turn." };
+          const selected = resolveEnabledToolPack(toolCatalog, requested);
+          if ("error" in selected) return selected;
+          if ("list" in selected) return { packs: selected.list };
+          const nextTools = toAgentTools(selected.tools, host);
+          pendingPackTools = nextTools;
+          request.tools = selected.tools;
+          agent.state.tools = nextTools;
+          return {
+            pack: selected.pack,
+            tools: selected.tools.map((tool) => tool.name),
+          };
+        };
 
         let restoringCalls = false;
         // Pi publishes parallel results into state only after the entire batch.

@@ -123,6 +123,10 @@ export function describeToolActivity(toolName: string, args: unknown): string {
       .trim();
     return text.length > ACTIVITY_DETAIL_LIMIT ? `${text.slice(0, ACTIVITY_DETAIL_LIMIT)}…` : text;
   };
+  if (toolName === "enable_tool_pack") {
+    const pack = detail(record.pack);
+    return pack === "list" ? "Listing tool packs" : `Loading tools: ${pack}`;
+  }
   if (toolName === "shell") return `Running: ${detail(record.command)}`;
   if (toolName === "user_computer_shell")
     return `Running on your computer: ${detail(record.command)}`;
@@ -374,6 +378,22 @@ function toAgentTool(tool: ConnectorTool, host: ToolHost, exposedName: string): 
           let failure: unknown;
           try {
             result = await (async () => {
+              if (tool.name === "enable_tool_pack") {
+                const applied = host.applyToolPack?.(String(args.pack ?? ""));
+                if (!applied) {
+                  return {
+                    content: [{ type: "text", text: "Tool packs are not available on this turn." }],
+                    details: { error: "unavailable" },
+                  };
+                }
+                if ("error" in applied) {
+                  return { content: [{ type: "text", text: applied.error }], details: applied };
+                }
+                return {
+                  content: [{ type: "text", text: JSON.stringify(applied) }],
+                  details: applied,
+                };
+              }
               if (tool.name === "request_takeover") {
                 host.pausePending = true;
                 host.queue.push({
@@ -628,6 +648,13 @@ export interface ToolHost {
   captureCheckpoint?: (toolCallId: string, executionId: string) => Promise<void>;
   /** Shell commands that returned output and are still running. */
   pendingShells: Array<Promise<FinishedShellCommand>>;
+  /** Swap the schemas the model sees. Absent when this turn sends every tool. */
+  applyToolPack?: (
+    pack: string,
+  ) =>
+    | { pack: string | null; tools: string[] }
+    | { packs: { id: string; purpose: string }[] }
+    | { error: string };
 }
 
 export function toolCallBudgetExceededMessage(limit: number) {

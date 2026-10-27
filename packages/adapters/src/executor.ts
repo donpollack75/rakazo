@@ -187,6 +187,7 @@ import {
 } from "./thread-artifacts.js";
 import { loadAgentTicketContext } from "./ticket-context.js";
 import { appendToolCompletionAudit } from "./tool-completion-audit.js";
+import { modelToolsForTurn } from "./tool-packs.js";
 import { createWebProvider } from "./web-provider-factory.js";
 
 export function createRunExecutor(deps: ExecutorDeps) {
@@ -1060,6 +1061,13 @@ export function createRunExecutor(deps: ExecutorDeps) {
 
         const reply = await createReplyState(deps, run, runSecrets);
         const scripted = deps.runtime.describe().capabilities.scripted;
+        const packedTurn = modelToolsForTurn({
+          tools,
+          provider: runModelProvider,
+          contextWindow: resolved.contextWindow,
+          trigger: run.trigger,
+          scripted,
+        });
         const script = scripted ? inferScript(task.prompt, takeoverResume?.checkpoint) : undefined;
         const state: RunState = {
           lease,
@@ -1401,6 +1409,7 @@ export function createRunExecutor(deps: ExecutorDeps) {
                 agentSkillsLine,
                 taughtSkillsLine,
                 replyGuidance: runReplyGuidance(run.trigger),
+                packed: packedTurn.deferred,
                 disabledBuiltinTools,
                 offeredFleetTools: offeredFleetTools(builtins),
                 userComputer,
@@ -1417,7 +1426,8 @@ export function createRunExecutor(deps: ExecutorDeps) {
                     (block) => block.kind === "image" && block.imageHandling === "confirm",
                   ),
               ),
-              tools,
+              tools: packedTurn.tools,
+              ...(packedTurn.catalog ? { toolCatalog: packedTurn.catalog } : {}),
               model: {
                 provider: runModelProvider,
                 id: runModelId,

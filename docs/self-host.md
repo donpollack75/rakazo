@@ -674,6 +674,10 @@ way by default.
 Only configure an endpoint you control: prompts, attachments, and tool results sent to that model
 leave Rakazo through this URL. Leave `RAKAZO_LOCAL_MODELS` blank to disable the provider.
 
+A local model often loads with a 4096-token context even when `RAKAZO_LOCAL_CONTEXT_WINDOW` is higher. Builtin tools stay available, but their schemas are not all sent on every turn for the local provider, or for any model whose context window is 8192 tokens or less. Chat tools (`ask_user`, `message_user`, and `end_call` on a call) stay in the prompt. The model loads one other pack at a time by calling `enable_tool_pack` with a pack id (`web`, `files`, `shell`, `desktop`, `desktop_act`, `browser`, `browser_act`, `memory`, `history`, `scratchpad`, `tickets`, `schedule`, `schedule_create`, `schedule_update`, `secrets`, `secret_ask`, `secret_make`, `secret_http`, `skills`, `media`, `voice`, `cloud`, `integrations`, `connectors`, `subagent`, `bots_create`, `bots_edit`, `bots_message`, `fleet`, `fleet_edit`, `child_routine`, `agents`). Pass `list` to see what each pack id does, or `none` to unload. The loaded pack replaces the previous one. Every builtin tool is in one of those packs.
+
+If the GPU has room, raising Ollama's `num_ctx` to 8192 leaves more room for the conversation. Set `RAKAZO_LOCAL_CONTEXT_WINDOW` to that same loaded size so Rakazo's budget matches the model. A larger window does not put every tool schema back into the prompt; packs still apply for the local provider.
+
 ### Ollama Cloud
 
 In **Settings → Models**, choose **Ollama Cloud**, paste an API key from ollama.com, then **Find models**. This uses an OpenAI-compatible connection with no environment configuration, and stays available when `RAKAZO_OPENAI_COMPAT_ALLOW_PUBLIC=0`.
