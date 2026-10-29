@@ -1,6 +1,6 @@
 # Engineer Ops instruction pack
 
-Text only. Merging or applying this change does not install software, restart containers, or deploy images.
+The files in this directory are operator text. The code change only lets a graphical computer source the literal path `/boss/github-env.sh` and still refuses writes to that file. Merging or applying this change does not install software, restart containers, or deploy images.
 
 ## Where the live prompt is
 
@@ -12,10 +12,12 @@ Rakazo stores a bot's operating instructions on the `bots.instructions` column (
 
 ## After this is applied
 
-Proxy runs the host and container install. Until then, leave the host unchanged.
+Hold Apply. Do not merge this change to deploy it. Proxy runs the host and container install after an explicit yes. Until then, leave the host unchanged. This pack does not restart Docker.
+
+Boss reaches the boss host through both Remote PC Agents on port 8450 and Rakazo. That pair is decided. See [reachability.md](./reachability.md). Boss runs the REA sequence himself with the existing shell tool pack once the instructions are on the bot. Proxy does not paste the commands by hand, and Proxy starts the port 8450 listener at Apply. Option A stays the existing `CLOUD_AGENT_*` variables for GitHub cloud agents.
 
 1. Install and configure 9Router from the official docs. Follow [9router.md](./9router.md). Keys stay on the host.
-2. In the boss container, follow [rea.md](./rea.md). Source `/boss/github-env.sh` before any `rea` or `npx rea-agents` command.
+2. Make `/boss/github-env.sh`, `/boss/rea/morluto-rea`, and `/boss/bin/rea` visible to the shell Boss will call. Reuse the existing boss container. Do not add a second container. Follow [rea.md](./rea.md).
 3. Replace the Engineer Ops bot instructions with [instructions.md](./instructions.md).
 4. Replace stored P01, P02, and P03 with the three files under [prompts/](./prompts/).
 5. Leave Ghidra and Hopper as they are.
