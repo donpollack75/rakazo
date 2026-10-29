@@ -105,11 +105,31 @@ export function lexicalPath(path: string): string | undefined {
   return stack.join("/");
 }
 
-/** A write can plant `bin/activate`, or the path contains a null byte. */
+/**
+ * The boss container's operator env file. Plain `rea` on that container crashes
+ * under Node 18 unless this file is sourced first. Only this path is allowed;
+ * a variable, glob, or other file stays refused.
+ */
+export const BOSS_OPERATOR_ENV_PATH = "/boss/github-env.sh";
+
+export function isLiteralBossEnvPath(text: string): boolean {
+  return lexicalPath(text) === BOSS_OPERATOR_ENV_PATH;
+}
+
+/** Virtualenv activate, or the one operator env file the boss container may source. */
+export function isAllowedLiteralSourcePath(text: string): boolean {
+  return isLiteralActivatePath(text) || isLiteralBossEnvPath(text);
+}
+
+/**
+ * A write can plant `bin/activate` or the boss operator env file, or the path
+ * contains a null byte. Both paths are legal `source` targets, so a write would
+ * let a later source run whatever was planted.
+ */
 function isActivateWritePath(path: string): boolean {
   const normalized = lexicalPath(path);
   if (normalized === undefined) return true;
-  return isLiteralActivatePath(normalized);
+  return isLiteralActivatePath(normalized) || isLiteralBossEnvPath(normalized);
 }
 
 /** Refuse planting a script that `source …/bin/activate` would later run unchecked. */
@@ -278,7 +298,7 @@ export function isUnsafeSource(words: readonly string[]): boolean {
   if (argument === undefined) return true;
   const text = literalCommandToken(argument);
   if (text === undefined) return true;
-  return !isLiteralActivatePath(text);
+  return !isAllowedLiteralSourcePath(text);
 }
 
 const EXTERNAL_ASSIGNMENT_COMMANDS = new Set([

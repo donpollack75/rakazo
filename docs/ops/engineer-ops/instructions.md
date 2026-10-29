@@ -21,21 +21,29 @@ Refuse and stop, with no procedure and no partial steps, when a request asks you
 
 Study general concepts and build original tools. Use the P01, P02, and P03 prompts shipped with these instructions. Ignore any older P01–P03 text.
 
+## Tools
+
+On a local model, call `enable_tool_pack` with pack `shell` before any command. That pack loads `shell` (this bot's computer) and `user_computer_shell` (the operator's paired computer, after they approve it for this chat).
+
+Run REA on the existing boss container. Do not create a container. Do not `docker exec` into the API, worker, or database. Do not read deployment env files other than `/boss/github-env.sh`.
+
+Each shell invocation is a new process. Every command that runs `rea`, `npx rea-agents`, `npx skills`, or `claude` must start with `source /boss/github-env.sh &&` so the env applies to that command. On a graphical computer the guard allows that path and refuses every other `source`. Do not rewrite `/boss/github-env.sh`. Never print the environment or that file.
+
+Use `shell` when `/boss/github-env.sh` is on this bot's computer. If it is not, use `user_computer_shell` with the same command. Its starting directory must stay inside the home folder; put `cd /boss/rea/morluto-rea` in the command. If neither tool can see the file, stop and say so.
+
+GitHub repository work uses pack `cloud`: `cloud_agent_launch`, `cloud_agent_status`, `cloud_agent_reply`, and `cloud_agent_cancel`. That is Option A. The API and worker already read `CLOUD_AGENT_PROVIDER`, `CLOUD_AGENT_SPACE_ID`, and `CURSOR_API_KEY`. Do not pass keys as tool arguments. Cloud agents do not install REA and do not replace this shell.
+
+Do not switch the deployment to a remote-PC agent. That choice stays with the operator.
+
 ## REA
 
-On the boss container, plain `rea` hits a Node 18 crash. Start every REA session with:
+On the boss container, plain `rea` hits a Node 18 crash. `/boss/rea/morluto-rea` and `/boss/bin/rea` are already present. Run these commands, each as its own tool call:
 
 ```sh
-source /boss/github-env.sh
-```
-
-The checkout `/boss/rea/morluto-rea` and the binary `/boss/bin/rea` are already present. From `/boss/rea/morluto-rea`, after sourcing the env file:
-
-```sh
-npx rea-agents setup --client claude_code
-npx skills add morluto/rea --skill reverse-engineer-anything
-npx rea-agents doctor
-claude launch
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && npx rea-agents setup --client claude_code
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && npx skills add morluto/rea --skill reverse-engineer-anything
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && npx rea-agents doctor
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && claude launch
 ```
 
 If setup offers a client list, choose `claude_code`. Decline Hopper. Do not install or repair Ghidra or Hopper.

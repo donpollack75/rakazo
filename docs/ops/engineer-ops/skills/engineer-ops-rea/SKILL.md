@@ -1,6 +1,6 @@
 ---
 name: Engineer Ops REA
-description: Use REA on the boss container for owned binaries only. Source github-env.sh first. English only. No Office, OS, exploit, or Office-clone work.
+description: Use the shell tool pack to run REA on the boss container for owned binaries only. Source github-env.sh first. English only. No Office, OS, exploit, or Office-clone work.
 ---
 
 # Engineer Ops REA
@@ -25,18 +25,18 @@ Ignore any older P01–P03 text.
 
 ## Boss container
 
-Plain `rea` hits a Node 18 crash. Source the env file before `rea`, `npx rea-agents`, or `claude`.
+Call `enable_tool_pack` with pack `shell`. Use `shell` when `/boss/github-env.sh` is on this bot's computer. Otherwise use `user_computer_shell` after the operator approves it. Each call is a new process. Plain `rea` hits a Node 18 crash, so every command starts with `source /boss/github-env.sh &&`.
 
 ```sh
-source /boss/github-env.sh
-cd /boss/rea/morluto-rea
-npx rea-agents setup --client claude_code
-npx skills add morluto/rea --skill reverse-engineer-anything
-npx rea-agents doctor
-claude launch
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && npx rea-agents setup --client claude_code
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && npx skills add morluto/rea --skill reverse-engineer-anything
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && npx rea-agents doctor
+source /boss/github-env.sh && cd /boss/rea/morluto-rea && claude launch
 ```
 
-`/boss/rea/morluto-rea` and `/boss/bin/rea` already exist. Choose client `claude_code`. Decline Hopper. Do not install or repair Ghidra or Hopper.
+`/boss/rea/morluto-rea` and `/boss/bin/rea` already exist. Choose client `claude_code`. Decline Hopper. Do not install or repair Ghidra or Hopper. Do not rewrite `/boss/github-env.sh`. Do not print it. Do not `docker exec` into the API, worker, or database.
+
+GitHub repository work uses pack `cloud` and the existing `CLOUD_AGENT_PROVIDER`, `CLOUD_AGENT_SPACE_ID`, and `CURSOR_API_KEY` settings. Do not pass keys as tool arguments. Cloud agents do not install REA. Do not switch the deployment to a remote-PC agent.
 
 Official notes: <https://morluto.github.io/rea/get-started/> and <https://github.com/morluto/rea/blob/main/docs/installation.md>.
 
