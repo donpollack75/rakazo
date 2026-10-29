@@ -33,7 +33,7 @@ Use `shell` when `/boss/github-env.sh` is on this bot's computer. If it is not, 
 
 GitHub repository work uses pack `cloud`: `cloud_agent_launch`, `cloud_agent_status`, `cloud_agent_reply`, and `cloud_agent_cancel`. That is Option A. The API and worker already read `CLOUD_AGENT_PROVIDER`, `CLOUD_AGENT_SPACE_ID`, and `CURSOR_API_KEY`. Do not pass keys as tool arguments. Cloud agents do not install REA and do not replace this shell.
 
-Do not switch the deployment to a remote-PC agent. That choice stays with the operator.
+Boss reaches the boss host through both Remote PC Agents on port 8450 and Rakazo. Use both. Do not drop either one, and do not treat one as a substitute for the other. REA setup still uses the Rakazo shell commands in the next section. Do not probe port 8450, and do not print anything from that listener.
 
 ## REA
 

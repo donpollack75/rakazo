@@ -36,7 +36,9 @@ source /boss/github-env.sh && cd /boss/rea/morluto-rea && claude launch
 
 `/boss/rea/morluto-rea` and `/boss/bin/rea` already exist. Choose client `claude_code`. Decline Hopper. Do not install or repair Ghidra or Hopper. Do not rewrite `/boss/github-env.sh`. Do not print it. Do not `docker exec` into the API, worker, or database.
 
-GitHub repository work uses pack `cloud` and the existing `CLOUD_AGENT_PROVIDER`, `CLOUD_AGENT_SPACE_ID`, and `CURSOR_API_KEY` settings. Do not pass keys as tool arguments. Cloud agents do not install REA. Do not switch the deployment to a remote-PC agent.
+GitHub repository work uses pack `cloud` and the existing `CLOUD_AGENT_PROVIDER`, `CLOUD_AGENT_SPACE_ID`, and `CURSOR_API_KEY` settings. Do not pass keys as tool arguments. Cloud agents do not install REA.
+
+Boss reaches the boss host through both Remote PC Agents on port 8450 and Rakazo. Use both. Do not drop either one. REA setup still uses the shell commands above. Do not probe port 8450, and do not print anything from that listener.
 
 Official notes: <https://morluto.github.io/rea/get-started/> and <https://github.com/morluto/rea/blob/main/docs/installation.md>.
 

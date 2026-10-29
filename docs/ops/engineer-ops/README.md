@@ -14,7 +14,7 @@ Rakazo stores a bot's operating instructions on the `bots.instructions` column (
 
 Hold Apply. Do not merge this change to deploy it. Proxy runs the host and container install after an explicit yes. Until then, leave the host unchanged. This pack does not restart Docker.
 
-Boss runs the REA sequence himself with the existing shell tool pack once the instructions are on the bot. Proxy does not paste the commands by hand. See [reachability.md](./reachability.md) for which computer that shell reaches. Remote PC Agents remain an operator choice and are not configured here. Option A stays the existing `CLOUD_AGENT_*` variables for GitHub cloud agents.
+Boss reaches the boss host through both Remote PC Agents on port 8450 and Rakazo. That pair is decided. See [reachability.md](./reachability.md). Boss runs the REA sequence himself with the existing shell tool pack once the instructions are on the bot. Proxy does not paste the commands by hand, and Proxy starts the port 8450 listener at Apply. Option A stays the existing `CLOUD_AGENT_*` variables for GitHub cloud agents.
 
 1. Install and configure 9Router from the official docs. Follow [9router.md](./9router.md). Keys stay on the host.
 2. Make `/boss/github-env.sh`, `/boss/rea/morluto-rea`, and `/boss/bin/rea` visible to the shell Boss will call. Reuse the existing boss container. Do not add a second container. Follow [rea.md](./rea.md).

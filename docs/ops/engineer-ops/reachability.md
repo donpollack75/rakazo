@@ -1,8 +1,10 @@
-# How Boss reaches the boss container
+# How Boss reaches the boss host
 
 Hold Apply. Nothing here changes a running host. Proxy performs the install after an explicit yes. Keys stay on the host.
 
-Boss already has two ways to run work. This pack uses the shell path for REA setup. It leaves the cloud-agent path in place for GitHub.
+Boss reaches the boss host through both Remote PC Agents and Rakazo. Both paths are decided and stay on. Remote PC Agents listen on port 8450. Rakazo is the shell pack below. Each path does its own job.
+
+REA setup still runs through the Rakazo shell pack below. Option A cloud agents stay for GitHub repositories. They are not one of these two paths, and they do not install REA.
 
 ## Option A — cloud agents
 
@@ -36,6 +38,6 @@ Proxy's install makes those three paths visible to the chosen tool: `/boss/githu
 
 ## Remote PC Agents
 
-A remote-PC agent reaches the host outside Rakazo's shell and user-device tools. This pack does not enable, disable, or configure one.
+Remote PC Agents reach the boss host outside Rakazo's shell and user-device tools. The listener is port 8450 on that host. Boss uses this path together with the Rakazo shell. Keep the listener in the deployment. REA setup still goes through the shell tools.
 
-Whether Boss should reach the host through Rakazo (`shell` / `user_computer_shell`) or through a remote-PC agent is still an operator decision. The instructions wire the Rakazo path so Boss can run the REA setup inside the safe bounds in [instructions.md](./instructions.md). They do not replace Option A, and they do not select a remote-PC agent.
+This change does not start the listener, open the port, or store an address or credential. Proxy does that at Apply, after an explicit yes. Do not print anything from that listener into chat. REA setup still follows the shell rules in [instructions.md](./instructions.md).
