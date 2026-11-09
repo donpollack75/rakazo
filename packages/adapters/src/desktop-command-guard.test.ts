@@ -4,7 +4,10 @@ import {
   isProtectedComputerLifecycleCommand,
   protectedComputerLifecycleRefusal,
 } from "./desktop-command-guard.js";
-import { protectedActivateScriptWriteRefusal } from "./desktop-guard-words.js";
+import {
+  BOSS_OPERATOR_ENV_PATH,
+  protectedActivateScriptWriteRefusal,
+} from "./desktop-guard-words.js";
 
 describe("computer lifecycle command guard", () => {
   it("rejects commands that can destroy a graphical bot's desktop", () => {
@@ -115,6 +118,44 @@ describe("computer lifecycle command guard", () => {
     expect(desktopProtectionGuardMessage("unresolved variable $f")).toBe(
       "This command was not run: desktop-protection guard: unresolved variable $f. Shell access is still available. Do not stop or restart browser or desktop processes.",
     );
+  });
+
+  it("allows sourcing the boss operator env file and refuses every other source and any write to it", () => {
+    const setup = `source ${BOSS_OPERATOR_ENV_PATH} && cd /boss/rea/morluto-rea && npx rea-agents doctor`;
+    for (const command of [
+      `source ${BOSS_OPERATOR_ENV_PATH}`,
+      `. ${BOSS_OPERATOR_ENV_PATH}`,
+      `source '${BOSS_OPERATOR_ENV_PATH}'`,
+      `source /boss/./github-env.sh`,
+      `source /boss/foo/../github-env.sh`,
+      setup,
+      `bash -c 'source ${BOSS_OPERATOR_ENV_PATH}'`,
+    ]) {
+      expect(protectedComputerLifecycleRefusal(command), command).toBeUndefined();
+    }
+    expect(
+      protectedComputerLifecycleRefusal(`source ${BOSS_OPERATOR_ENV_PATH}; pkill chromium`),
+    ).toBe("protected command pkill");
+    for (const command of [
+      "source /tmp/github-env.sh",
+      "source /boss/other.sh",
+      "source github-env.sh",
+      'source "$ENV"',
+      "source /boss/github-env.sh/../../tmp/evil.sh",
+    ]) {
+      expect(protectedComputerLifecycleRefusal(command), command).toBe("source");
+    }
+    expect(protectedComputerLifecycleRefusal(`echo hi > ${BOSS_OPERATOR_ENV_PATH}`)).toBe(
+      "activate script",
+    );
+    expect(protectedComputerLifecycleRefusal("echo hi > /boss/./github-env.sh")).toBe(
+      "activate script",
+    );
+    expect(protectedActivateScriptWriteRefusal(BOSS_OPERATOR_ENV_PATH)).toBe("activate script");
+    expect(protectedActivateScriptWriteRefusal("/boss/foo/../github-env.sh")).toBe(
+      "activate script",
+    );
+    expect(protectedActivateScriptWriteRefusal("/boss/rea/morluto-rea/README.md")).toBeUndefined();
   });
 
   it("allows comments, literal assignments, activate scripts, and quoted heredoc data", () => {

@@ -24,7 +24,7 @@ import {
   commandWritesActivateScript,
   externalAssignments,
   isActivateWriteTarget,
-  isLiteralActivatePath,
+  isAllowedLiteralSourcePath,
   isUnsafeSource,
   literalCommandToken,
   primaryCommandIndex,
@@ -54,7 +54,8 @@ type PendingHeredoc = {
  * data for cat or tee, a quoted body that names a lifecycle command, a shell,
  * source, sudo, or busybox after that heredoc, a later command that runs a
  * path that heredoc wrote, source of anything but a
- * literal activate path, or a write that can plant that activate script).
+ * literal activate path or `/boss/github-env.sh`, or a write that can plant
+ * either of those sourced files).
  */
 function prepareDesktopGuardCommand(source: string): PreparedDesktopCommand {
   const env = new Map<string, string>();
@@ -574,8 +575,9 @@ function protectedWordRefusal(words: readonly string[]): string | undefined {
     const base = (word.split("/").at(-1) ?? "").toLowerCase();
     if (base !== "eval" && base !== "source" && word !== ".") continue;
     const next = words[index + 1];
-    // Virtualenv activation is the one source form that does not run an arbitrary script.
-    if ((word === "source" || word === ".") && next && isLiteralActivatePath(next)) continue;
+    // Virtualenv activation, and the boss container's operator env file, are the
+    // source forms that name a fixed path. Any other source can run an arbitrary script.
+    if ((word === "source" || word === ".") && next && isAllowedLiteralSourcePath(next)) continue;
     return base === "eval" ? "eval" : "source";
   }
   const service = words
