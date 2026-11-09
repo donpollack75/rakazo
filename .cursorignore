@@ -1,0 +1,42 @@
+# Dependencies and build output
+node_modules/
+dist/
+build/
+out/
+.next/
+coverage/
+*.log
+
+# Caches
+.cache/
+.turbo/
+.gradle/
+.bun/
+
+# Runtime / export data
+data/
+apps/**/data
+artifacts/
+backups/
+
+# Packages and binaries
+*.apk
+*.aab
+*.exe
+*.zip
+*.tgz
+*.tar.gz
+
+# Secrets
+.env
+.env.*
+*.env
+
+# Generated / test dumps present in this repo's ignore set
+.playwright-report/
+playwright-report/
+playwright-report-www/
+test-results/
+apps/mobile/.expo/
+.astro/
+packages/db/src/generated/

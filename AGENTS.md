@@ -1,5 +1,23 @@
 # AGENTS.md
 
+## How to work here
+- Open only the files the task needs. Search with rg before opening, read big files in ranges, and never read whole data dumps, logs or build output.
+- Don't paste full files or long logs into replies. Quote only the relevant lines.
+- Pick the model that fits the task: a light/fast one for simple edits, a high-end one only for hard problems.
+- One task per agent. Finish with a PR and stop. No scope creep.
+- Nothing goes live without Don's own Apply. Agents never deploy; Proxy deploys after Don approves.
+
+## This repo
+- Entry points:
+  - `apps/api` — HTTP API, auth, orchestration, and persistence.
+  - `apps/web` — product UI (also hosted inside Electron).
+  - `apps/desktop` — Electron shell for the local/desktop app.
+  - `apps/mobile` — Expo / React Native client.
+  - `packages/core` — shared product logic used by every surface.
+  - `infra/compose` — Docker Compose for running the stack (GreatyWhite).
+- Tests: `pnpm test` (Vitest). Do not run the full suite for docs-only work. Desktop Playwright (`pnpm --filter @rakazo/desktop test:e2e`) is CI-only.
+- No-touch: `data/`, live config, secrets (`.env*`, `*.json` bot configs holding keys), model weights, Modelfiles, and live Docker volumes. Never commit secrets. Agents never deploy.
+
 - This is a public repository: assume all tracked content and diffs are public. Never commit secrets, `.env` files, private URLs, personal/customer data, or real production data; use fake placeholders. Review `git status` and the staged diff before committing, and never force-add ignored files. If private data appears, stop and alert the maintainer.
 - Rakazo is one product across web, Electron desktop, and Expo mobile; Electron hosts the web UI. Put shared behavior, contracts, API logic, and reusable UI in packages. Keep only genuinely native navigation, storage, permissions, and interactions platform-specific. Core workflows must cover every applicable surface or degrade safely for an explicit reason.
 - No hosted vendor is required to run the core product. Keep LLMs, sandboxes, memory, voice, integrations, and future external services optional and behind provider-neutral interfaces. Vendor SDKs, configuration, and translation belong only in adapters and composition roots. New providers must reuse shared contracts and deterministic offline conformance tests.
